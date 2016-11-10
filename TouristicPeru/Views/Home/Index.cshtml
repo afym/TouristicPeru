@@ -1,0 +1,56 @@
+﻿<div class="row">
+    <div id="google-map" class="col-md-12" style="height:500px; width:100%;"></div>
+</div>
+
+@section Scripts{
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBsVqiDO4LIRv290ce7n8nRjw0FHf7gf2Q"></script>
+    <script type="text/javascript">
+        var markersInfoWindow = [];
+
+        $(function () {
+            var mapOptions = {
+                center: new google.maps.LatLng(-12.11222547, -77.03191638),
+                zoom: 16,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+            var map = new google.maps.Map(document.getElementById("google-map"), mapOptions);
+          
+            google.maps.event.addListenerOnce(map, 'idle', function () {
+                $.get("Home/GetPoints", function (response) {
+                    var points = response.data;
+
+                    for (index in points) {
+                        var marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(points[index].Latitude, points[index].Longitude),
+                            map: map,
+                            draggable: false
+                        });
+
+                        marker.set("uid", index);
+
+                        var place = "<p><b>Lugar: </b>" + points[index].Name + "</p>";
+                        var address = "<p><b>Direccion: </b>" + points[index].Address + "</p>";
+                        var category = "<p style=\"color : blue;\"><b>Categoria: </b>" + points[index].Address + "</p>";
+                        var img = "<img src=\"" + points[index].Image +"\" witdh=\"20\" heigth=\"10\"/>";
+
+                        var infowindow = new google.maps.InfoWindow({
+                            content: img + place + category + address,
+                        });
+
+                        markersInfoWindow[index] = infowindow;
+
+                        marker.addListener('click', function () {
+                            console.log("done");
+                            console.log(this.get("uid"));
+                            var infowindow = markersInfoWindow[this.get("uid")];
+                            infowindow.open(map, this);
+                        });
+
+                        marker.setMap(map);
+                    }
+                });
+            });
+        });
+    </script>
+}
